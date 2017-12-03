@@ -11,9 +11,9 @@ client = Client(api_key,api_secret)
 
 # enter entry value and coins you own
 base_data = {}
-base_data['BTC'] = 
-base_data['LTC'] = 
-base_data['ETH'] = 
+base_data['BTC'] = 200.0/0.0282 
+base_data['LTC'] = (250.0+250.0)/(3.3160 + 3.2039801 - 1.151602744)
+base_data['ETH'] = (500.0 + 1000.0)/(0.6141 + 0.5346 + 2.064255)
 stop_loss_factor = 0.8
 
 

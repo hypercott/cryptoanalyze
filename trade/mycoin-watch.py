@@ -3,10 +3,12 @@ import sys
 import sqlite3
 import datetime
 import time
+import pytz
+import mycoin_get_average as mga
 import numpy as np
 
 def get_time():
-    itime = int(datetime.datetime.utcnow().timestamp())
+    itime = int(datetime.datetime.now(tz=pytz.utc).timestamp())
     return itime
 
 #########################################
@@ -45,7 +47,7 @@ stoploss_frac  = 0.7
 #sell_keep = 0.04
 
 
-sell_thr = 0.1
+sell_thr = 0.15
 sell_keep = 0.05
 
 
@@ -124,18 +126,32 @@ def watch(client,coin):
     value = coin.balance * price
     perc = (value - coin.costbasis) / coin.costbasis
 
-    print("%s: %8.2f %13.8g %8.2f %8.2f %+8.3f" % \
-          (coin.name,price,coin.balance,value,coin.costbasis,perc))
-
+    avg = mga.get_average(coin.name,3600)
     
-    # stop loss is first
-    if value <= coin.costbasis0 * stoploss_frac0:
-        sell_all(coin)
-        return
+    print("%s: %8.2f %8.2f %13.8f %8.2f %8.2f %+8.3f" % \
+          (coin.name,price,avg,coin.balance,value,coin.costbasis,perc))
 
-    if value <= coin.costbasis * stoploss_frac:
-        sell_all(coin)
-        return
+    if(avg > 0):
+    # stop loss is first, make sure the average over the last
+    # hour is also trending this way
+        if value <= coin.costbasis0 * stoploss_frac0 \
+           and avg <= coin.costbasis0 * (stoploss_frac0 + 0.02):
+            sell_all(coin)
+            return
+
+            if value <= coin.costbasis * stoploss_frac \
+               and avg <= coin.costbasis * (stoploss_frac + 0.02):
+                sell_all(coin)
+            return
+    else:
+    # this is when our call to our database fails
+        if value <= coin.costbasis0 * stoploss_frac0: 
+            sell_all(coin)
+            return
+
+        if value <= coin.costbasis * stoploss_frac:
+            sell_all(coin)
+            return
     
     if value >= coin.costbasis * (1.0 + sell_thr):
         
@@ -188,7 +204,6 @@ while True:
     for coin in coins:
         watch(client,coin)
     time.sleep(120)
-
         
     
 #cstring = "SELECT * from BTC"

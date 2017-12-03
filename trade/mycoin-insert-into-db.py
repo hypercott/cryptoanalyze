@@ -3,10 +3,11 @@ import sys
 import sqlite3
 import datetime
 import time
+import pytz
 import numpy as np
 
 def get_time():
-    itime = int(datetime.datetime.utcnow().timestamp())
+    itime = int(datetime.datetime.now(tz=pytz.utc).timestamp())
     return itime
 
 #########################################
@@ -19,9 +20,9 @@ c = conn.cursor()
 #########################################
 
 name = "ETH"
-change = 
-balance = +change
-costbasis = 
+change = +1.06285277
+balance = 1.1487485+change
+costbasis = 526.76 + 500.0
 
 istime = get_time()
 cstring = "INSERT INTO %s ('TimeStamp','Change','Balance','USDbase') VALUES (%d,%.14f,%.14f,%f)" % \
